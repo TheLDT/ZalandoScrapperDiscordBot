@@ -22,36 +22,48 @@ class ZalandoScrapper {
         shoe = new Shoe();
         try {
             doc = Jsoup.connect(searchUrl).userAgent(userAgent).referrer("https://www.google.com/").timeout(10*10000).get();
-            elements = doc.select("script#z-vegas-pdp-props");
+            //old
+            //elements = doc.select("script#z-vegas-pdp-props");
             
+            elements = doc.select("script.re-1-12");
             for (Element element : elements) {
                 if (element.childNodeSize() > 0) {
-                    String json = element.childNode(0).toString().substring(8,element.childNode(0).toString().length()-2);
-                    JSONArray array = (JSONArray) new JSONParser().parse(json);
-                    JSONObject object = (JSONObject) array.get(0);
-                    object = (JSONObject) object.get("model");
-                    object = (JSONObject) object.get("articleInfo");
-                    shoe.name =  ((String) object.get("id"))+" " +((String) object.get("name"));
-                    array = (JSONArray) object.get("units");
-                    array.forEach(obj->{
-                        ShoeSize shoeSize = new ShoeSize();
-                        
-                        JSONObject curObj = (JSONObject)obj;
-                        shoeSize.id = (String) curObj.get("id");
-                        shoeSize.stock = (Long) curObj.get("stock");
-                        shoeSize.size = (String)((JSONObject)curObj.get("size")).get("local") + "";
-                        shoeSize.price = (String)((JSONObject)curObj.get("price")).get("formatted") + "";
-                        //System.out.println(shoe.toString());
-                        
-                        shoeSizes.add(shoeSize);
-                    });
-                    shoe.shoeSizes = shoeSizes;
-                    object = (JSONObject)object.get("media");
-                    array =(JSONArray) object.get("images");
-                    object = (JSONObject)array.get(0);
-                    object = (JSONObject)object.get("sources");
-                    shoe.imageLink = (String)((JSONObject)object).get("reco2x");
-                    shoe.shopLink = searchUrl;
+                    String json = element.childNode(0).toString();
+                    JSONObject object = (JSONObject) new JSONParser().parse(json);
+                    JSONArray array = null;
+                    
+                    object = (JSONObject) object.get("graphqlCache");
+                    for(Object key:object.keySet()){
+                        String keyS = key.toString();
+                        if(keyS.startsWith("{\"id\":\"3cbcb551386476489f3ea05d361fc0c6a15c13fb7678d667fc79952db14f23fa\"")){
+                            JSONObject obj = (JSONObject) object.get(keyS);
+                            obj = (JSONObject) obj.get("data");
+                            obj = (JSONObject) obj.get("product");
+                            
+                            shoe.name = ((String) obj.get("sku"))+ " " +((String) obj.get("name"));
+                            array = (JSONArray) obj.get("simples");
+                            array.forEach(arrObj->{
+                                ShoeSize shoeSize = new ShoeSize();
+
+                                JSONObject curObj = (JSONObject)arrObj;
+                                shoeSize.id = (String) curObj.get("sku");
+                                
+                                shoeSize.size = (String) curObj.get("size");
+                                JSONObject offer = (JSONObject) curObj.get("offer");
+                                shoeSize.setStock((String)((JSONObject) offer.get("stock")).get("quantity"));
+                                JSONObject priceOriginal = (JSONObject)((JSONObject)offer.get("price")).get("original");
+                                shoeSize.price = (Long)priceOriginal.get("amount") + (String)priceOriginal.get("currency") + "";
+                                shoeSizes.add(shoeSize);
+                            });
+                            
+                            shoe.shoeSizes = shoeSizes;
+                            shoe.shopLink = searchUrl;
+                            array = (JSONArray) obj.get("media");
+                            obj = (JSONObject) array.get(0);
+                            shoe.imageLink = (String)obj.get("uri");
+                            break;
+                        }                        
+                    }
                 }
             }
         } catch (IOException | ParseException ex) {
@@ -60,5 +72,4 @@ class ZalandoScrapper {
         
         return shoe;
     }
-    
 }

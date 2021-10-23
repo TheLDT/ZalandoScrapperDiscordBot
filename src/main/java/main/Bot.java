@@ -16,6 +16,7 @@ public class Bot {
     public static void main(String[] args) {
         try{
             readSettings();
+            System.out.println(BOT_TOKEN);
             jda = JDABuilder.createDefault(BOT_TOKEN)
                     .setChunkingFilter(ChunkingFilter.ALL)
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)

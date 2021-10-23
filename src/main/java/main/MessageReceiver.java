@@ -16,6 +16,9 @@ public class MessageReceiver extends ListenerAdapter{
         if(command.startsWith(PREFIX)) command = command.substring(PREFIX.length()); else return;
         
         switch(command.toLowerCase()){
+            case "ping":
+                System.out.println("pong");
+                break;
             case "zalando":
                 e.getChannel()
                         .sendMessage(createEmbed(ZalandoScrapper.find(message[1]),e))
@@ -31,10 +34,10 @@ public class MessageReceiver extends ListenerAdapter{
         builder.setTitle(shoe.name, shoe.shopLink);
         builder.setThumbnail(shoe.imageLink);
         
-        builder.addField("GENERAL PID",shoe.name.split(" ")[0],false);
+        builder.addField("GENERAL PID", shoe.name.split(" ")[0],false);
         
         StringBuilder sb = new StringBuilder();
-        int totalStock = 0;
+        //int totalStock = 0;
         
         for(ShoeSize shoeSize:shoe.shoeSizes){
             /*
@@ -45,24 +48,24 @@ public class MessageReceiver extends ListenerAdapter{
             
             sb.append("``");
             sb.append(shoeSize.size);
-            sb.append((Double.parseDouble(shoeSize.size)%1==0)?"   ":" ");
+            sb.append(shoeSize.align());
             sb.append("``  ");
             
             sb.append("``");
             sb.append(shoeSize.id);
             sb.append("  `` ");
             
-            sb.append("``");
+            sb.append("");
             sb.append(shoeSize.stock);
-            sb.append((shoeSize.stock>=100)?"":(shoeSize.stock>=10?" ":"  "));
-            sb.append("``\n");
+            //sb.append((shoeSize.stock>=100)?"":(shoeSize.stock>=10?" ":"  "));
+            sb.append("\n");
             
-            totalStock+=shoeSize.stock;
+            //totalStock += shoeSize.stock;
         }
         
         
-        builder.addField("SIZES\t\t SIZE PIDS\t\t\t\t STOCK ",sb.toString(),false);
-        builder.addField("TOTAL STOCK:",totalStock+"",false);
+        builder.addField("SIZES\t SIZE PIDS\t\t\t\t\t\t\t STOCK ",sb.toString(),false);
+        //builder.addField("TOTAL STOCK:",totalStock+"",false);
         String url = shoe.shopLink;
         /*
         builder.addField("",
