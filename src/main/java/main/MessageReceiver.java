@@ -62,8 +62,8 @@ public class MessageReceiver extends ListenerAdapter{
             
             //totalStock += shoeSize.stock;
         }
-        
-        
+        builder.addField("🟢 In Stock\n" +
+                            "🔴 Out of Stock","",false);
         builder.addField("SIZES\t SIZE PIDS\t\t\t\t\t\t\t STOCK ",sb.toString(),false);
         //builder.addField("TOTAL STOCK:",totalStock+"",false);
         String url = shoe.shopLink;

@@ -17,9 +17,10 @@ public class ShoeSize {
     
     public void setStock(String stock){
         if(stock.equals("MANY")){
-            this.stock = ":green_circle:" + stock;
+            //this.stock = ":green_circle:" + stock;
+            this.stock = "🟢";
         } else {
-            this.stock = ":red_circle:" + stock;
+            this.stock = "🔴";
         }
     }
     
